@@ -102,7 +102,7 @@ trait MongoConnect {
     }
   }
 
-  def update[T](collectionName: String, selectedData: BSONDocument, data: T): Future[MongoResponse] = {
+  def update[T](collectionName: String, selectedData: BSONDocument, data: T)(implicit format: OFormat[T]): Future[MongoResponse] = {
     for {
       collection <- collection(collectionName)
       result <- collection.update(selectedData, data)
