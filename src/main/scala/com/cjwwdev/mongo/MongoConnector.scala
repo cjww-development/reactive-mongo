@@ -16,6 +16,8 @@
 
 package com.cjwwdev.mongo
 
+import javax.inject.{Inject, Singleton}
+
 import com.typesafe.config.ConfigFactory
 import com.cjwwdev.logging.Logger
 import play.api.libs.json.OFormat
@@ -41,7 +43,10 @@ case object MongoFailedUpdate extends MongoResponse
 case object MongoSuccessDelete extends MongoResponse
 case object MongoFailedDelete extends MongoResponse
 
-trait MongoConnector {
+@Singleton
+class MongoConnector @Inject()() extends MongoConnect
+
+trait MongoConnect {
   private[mongo] val env = ConfigFactory.load.getString("cjww.environment")
   private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString(s"$env.mongo.uri")) match {
     case Success(uri) => uri
