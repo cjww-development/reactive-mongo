@@ -42,15 +42,15 @@ case object MongoSuccessDelete extends MongoResponse
 case object MongoFailedDelete extends MongoResponse
 
 trait MongoConnector {
-  private val DATABASE_URI = Try(ConfigFactory.load.getString("mongo.uri")) match {
+  private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString("mongo.uri")) match {
     case Success(uri) => uri
     case Failure(e) => throw e
   }
-  private val driver = new MongoDriver
-  private val parsedUri = MongoConnection.parseURI(DATABASE_URI).get
-  private val connection = driver.connection(parsedUri)
-  private val database = connection.database(parsedUri.db.get)
-  private def collection(name: String): Future[JSONCollection] = {
+  private[mongo] val driver = new MongoDriver
+  private[mongo] val parsedUri = MongoConnection.parseURI(DATABASE_URI).get
+  private[mongo] val connection = driver.connection(parsedUri)
+  private[mongo] val database = connection.database(parsedUri.db.get)
+  private[mongo] def collection(name: String): Future[JSONCollection] = {
     database map {
       _.collection(name)
     }
