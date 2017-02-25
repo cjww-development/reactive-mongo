@@ -42,7 +42,8 @@ case object MongoSuccessDelete extends MongoResponse
 case object MongoFailedDelete extends MongoResponse
 
 trait MongoConnector {
-  private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString("mongo.uri")) match {
+  private[mongo] val env = ConfigFactory.load.getString("cjww.environment")
+  private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString(s"$env.mongo.uri")) match {
     case Success(uri) => uri
     case Failure(e) => throw e
   }
