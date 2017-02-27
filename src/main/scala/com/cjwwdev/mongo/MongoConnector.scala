@@ -21,6 +21,7 @@ import javax.inject.{Inject, Singleton}
 import com.typesafe.config.ConfigFactory
 import com.cjwwdev.logging.Logger
 import play.api.libs.json.OFormat
+import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
@@ -62,11 +63,13 @@ trait MongoConnect {
     }
   }
 
-  def create[T](collectionName: String, data: T)(implicit format: OFormat[T]): Future[MongoResponse] = {
+  def create[T](collectionName: String, data: T)(implicit format: OFormat[T], index: Index): Future[MongoResponse] = {
     for {
       collection <- collection(collectionName)
+      ind <- collection.indexesManager.ensure(index)
       result <- collection.insert[T](data)
     } yield {
+      if(!ind) Logger.error(s"[MongoConnector] - [create] : There was a problem ensuring indexing on ${index.name.get}")
       if(result.ok) {
         MongoSuccessCreate
       } else {
@@ -102,11 +105,13 @@ trait MongoConnect {
     }
   }
 
-  def update[T](collectionName: String, selectedData: BSONDocument, data: T)(implicit format: OFormat[T]): Future[MongoResponse] = {
+  def update[T](collectionName: String, selectedData: BSONDocument, data: T)(implicit format: OFormat[T], index: Index): Future[MongoResponse] = {
     for {
       collection <- collection(collectionName)
+      ind <- collection.indexesManager.ensure(index)
       result <- collection.update(selectedData, data)
     } yield {
+      if(!ind) Logger.error(s"[MongoConnector] - [create] : There was a problem ensuring indexing on ${index.name.get}")
       if(result.ok) {
         MongoSuccessUpdate
       } else {
