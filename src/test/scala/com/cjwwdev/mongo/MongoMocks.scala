@@ -16,8 +16,8 @@
 
 package com.cjwwdev.mongo
 
-import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 
 trait MongoMocks extends MockitoSugar {

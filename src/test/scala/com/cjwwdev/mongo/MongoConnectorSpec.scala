@@ -22,6 +22,7 @@ import org.mockito.Matchers
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
+import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.collection.JSONCollection
@@ -44,7 +45,10 @@ class MongoConnectorSpec extends PlaySpec with OneAppPerSuite with MockitoSugar 
   val mockFailedWR = mockWriteResult(false)
   val mockFailedUWR = mockUpdateWriteResult(false)
 
+
   class Setup {
+    implicit val ensureIndex: Index = Index(key = Seq("string" -> IndexType.Text), name = Some("string"), unique = false, sparse = false)
+
     object TestConnector extends MongoConnector {
       override val DATABASE_URI = "mongodb://localhost:27017/test-db"
       override val driver = mockDriver
