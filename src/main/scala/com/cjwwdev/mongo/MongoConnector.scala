@@ -21,7 +21,6 @@ import javax.inject.{Inject, Singleton}
 import com.typesafe.config.ConfigFactory
 import com.cjwwdev.logging.Logger
 import play.api.libs.json.OFormat
-import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
@@ -31,25 +30,26 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
-sealed trait MongoResponse
-case object MongoSuccessCreate extends MongoResponse
-case object MongoFailedCreate extends MongoResponse
+sealed trait MongoCreateResponse
+sealed trait MongoReadResponse
+sealed trait MongoUpdatedResponse
+sealed trait MongoDeleteResponse
 
-case class MongoSuccessRead(data : Any) extends MongoResponse
-case object MongoFailedRead extends MongoResponse
+case object MongoSuccessCreate extends MongoCreateResponse
+case object MongoFailedCreate extends MongoCreateResponse
 
-case object MongoSuccessUpdate extends MongoResponse
-case object MongoFailedUpdate extends MongoResponse
+case class MongoSuccessRead(data : Any) extends MongoReadResponse
+case object MongoFailedRead extends MongoReadResponse
 
-case object MongoSuccessDelete extends MongoResponse
-case object MongoFailedDelete extends MongoResponse
+case object MongoSuccessUpdate extends MongoUpdatedResponse
+case object MongoFailedUpdate extends MongoUpdatedResponse
+
+case object MongoSuccessDelete extends MongoDeleteResponse
+case object MongoFailedDelete extends MongoDeleteResponse
 
 @Singleton
-class MongoConnector @Inject()() extends MongoConnect
-
-trait MongoConnect {
-  private[mongo] val env = ConfigFactory.load.getString("cjww.environment")
-  private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString(s"$env.mongo.uri")) match {
+class MongoConnector @Inject()() {
+  private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString(s"mongo.uri")) match {
     case Success(uri) => uri
     case Failure(e) => throw e
   }
@@ -63,13 +63,11 @@ trait MongoConnect {
     }
   }
 
-  def create[T](collectionName: String, data: T)(implicit format: OFormat[T], index: Index): Future[MongoResponse] = {
+  def create[T](collectionName: String, data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = {
     for {
       collection <- collection(collectionName)
-      ind <- collection.indexesManager.ensure(index)
       result <- collection.insert[T](data)
     } yield {
-      if(!ind) Logger.error(s"[MongoConnector] - [create] : There was a problem ensuring indexing on ${index.name.get}")
       if(result.ok) {
         MongoSuccessCreate
       } else {
@@ -79,7 +77,7 @@ trait MongoConnect {
     }
   }
 
-  def read[T](collectionName: String, query: BSONDocument)(implicit format: OFormat[T]): Future[MongoResponse] = {
+  def read[T](collectionName: String, query: BSONDocument)(implicit format: OFormat[T]): Future[MongoReadResponse] = {
     for {
       collection <- collection(collectionName)
       result <- collection.find[BSONDocument](query).one[T]
@@ -91,7 +89,7 @@ trait MongoConnect {
     }
   }
 
-  def readBulk[T](collectionName: String, query: BSONDocument)(implicit format: OFormat[T]): Future[MongoResponse] = {
+  def readBulk[T](collectionName: String, query: BSONDocument)(implicit format: OFormat[T]): Future[MongoReadResponse] = {
     for {
       collection <- collection(collectionName)
       result <- collection.find(query).cursor[T]().collect[List]()
@@ -105,13 +103,11 @@ trait MongoConnect {
     }
   }
 
-  def update[T](collectionName: String, selectedData: BSONDocument, data: T)(implicit format: OFormat[T], index: Index): Future[MongoResponse] = {
+  def update[T](collectionName: String, selectedData: BSONDocument, data: T)(implicit format: OFormat[T]): Future[MongoUpdatedResponse] = {
     for {
       collection <- collection(collectionName)
-      ind <- collection.indexesManager.ensure(index)
       result <- collection.update(selectedData, data)
     } yield {
-      if(!ind) Logger.error(s"[MongoConnector] - [create] : There was a problem ensuring indexing on ${index.name.get}")
       if(result.ok) {
         MongoSuccessUpdate
       } else {
@@ -121,7 +117,7 @@ trait MongoConnect {
     }
   }
 
-  def delete(collectionName: String, query: BSONDocument): Future[MongoResponse] = {
+  def delete(collectionName: String, query: BSONDocument): Future[MongoDeleteResponse] = {
     for {
       collection <- collection(collectionName)
       result <- collection.remove(query)

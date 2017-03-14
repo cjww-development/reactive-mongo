@@ -47,9 +47,8 @@ class MongoConnectorSpec extends PlaySpec with OneAppPerSuite with MockitoSugar 
 
 
   class Setup {
-    implicit val ensureIndex: Index = Index(key = Seq("string" -> IndexType.Text), name = Some("string"), unique = false, sparse = false)
 
-    object TestConnector extends MongoConnector {
+    val testConnector = new MongoConnector() {
       override val DATABASE_URI = "mongodb://localhost:27017/test-db"
       override val driver = mockDriver
       override val connection = mockConnection
@@ -69,7 +68,7 @@ class MongoConnectorSpec extends PlaySpec with OneAppPerSuite with MockitoSugar 
         when(mockCollection.insert[TestModel](Matchers.eq(testData), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(mockWriteResult))
 
-        val result = Await.result(TestConnector.create[TestModel](mockCollectionName, testData), 5.seconds)
+        val result = Await.result(testConnector.create[TestModel](mockCollectionName, testData), 5.seconds)
         result mustBe MongoSuccessCreate
       }
 
@@ -85,7 +84,7 @@ class MongoConnectorSpec extends PlaySpec with OneAppPerSuite with MockitoSugar 
         when(mockCollection.remove[TestModel](Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(),Matchers.any()))
           .thenReturn(Future.successful(mockUpdatedWriteResult))
 
-        val result = Await.result(TestConnector.delete(mockCollectionName, BSONDocument("string" -> "testString")), 5.seconds)
+        val result = Await.result(testConnector.delete(mockCollectionName, BSONDocument("string" -> "testString")), 5.seconds)
         result mustBe MongoSuccessDelete
       }
     }
