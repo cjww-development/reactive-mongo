@@ -10,19 +10,18 @@ val btVersion: String = {
 
 name := "reactive-mongo"
 version := btVersion
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.10"
 organization := "com.cjww-dev.libs"
 
-val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "logging_2.11" % "0.1.0")
+val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "logging_2.11" % "0.2.0")
 
 val codeDep: Seq[ModuleID] = Seq(
-  "com.typesafe.play" % "play_2.11" % "2.5.12",
-  "org.reactivemongo" %% "reactivemongo" % "0.11.14",
+  "com.typesafe.play" % "play_2.11" % "2.5.14",
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
 )
 val testDep: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "1.5.1",
-  "org.mockito" % "mockito-core" % "1.8.5"
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0",
+  "org.mockito" % "mockito-core" % "2.7.22"
 )
 
 libraryDependencies ++= cjwwDep

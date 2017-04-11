@@ -71,7 +71,7 @@ class MongoConnector @Inject()() {
       if(result.ok) {
         MongoSuccessCreate
       } else {
-        Logger.error(s"[MongoConnector] - [create] : Inserting document of type ${data.getClass} FAILED reason : ${result.errmsg.get}")
+        Logger.error(s"[MongoConnector] - [create] : Inserting document of type ${data.getClass} FAILED reason : ${result.writeConcernError.get.errmsg}")
         MongoFailedCreate
       }
     }
@@ -125,7 +125,7 @@ class MongoConnector @Inject()() {
       if(result.ok) {
         MongoSuccessDelete
       } else {
-        Logger.error(s"[MongoConnector] - [delete] : Deleting a document from $collectionName FAILED reason : ${result.errmsg.get}")
+        Logger.error(s"[MongoConnector] - [delete] : Deleting a document from $collectionName FAILED reason : ${result.writeConcernError.get.errmsg}")
         MongoFailedDelete
       }
     }

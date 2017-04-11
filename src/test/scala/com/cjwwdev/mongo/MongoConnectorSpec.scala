@@ -18,18 +18,16 @@ package com.cjwwdev.mongo
 
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
-import org.mockito.Matchers
+import org.mockito.{ArgumentMatchers => Matchers}
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
-import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class MongoConnectorSpec extends PlaySpec with OneAppPerSuite with MockitoSugar with MongoMocks {
 
