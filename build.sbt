@@ -10,7 +10,7 @@ val btVersion: String = {
 
 name := "reactive-mongo"
 version := btVersion
-scalaVersion := "2.11.10"
+scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "logging_2.11" % "0.2.0")

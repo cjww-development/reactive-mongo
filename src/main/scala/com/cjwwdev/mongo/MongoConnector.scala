@@ -47,6 +47,7 @@ case object MongoFailedUpdate extends MongoUpdatedResponse
 case object MongoSuccessDelete extends MongoDeleteResponse
 case object MongoFailedDelete extends MongoDeleteResponse
 
+@deprecated("Please use MongoRepository in com.cjwwdev.reactivemongo instead as as version 1.0.0")
 @Singleton
 class MongoConnector @Inject()() {
   private[mongo] val DATABASE_URI = Try(ConfigFactory.load.getString(s"mongo.uri")) match {
