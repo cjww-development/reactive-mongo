@@ -16,32 +16,21 @@
 package com.cjwwdev.reactivemongo
 
 import com.typesafe.config.ConfigFactory
-import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection}
+import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection, MongoDriver}
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MongoConnector {
 
   val connectionUri: String = ConfigFactory.load.getString("mongo.uri")
   val failoverStrategy: Option[FailoverStrategy] = None
 
-  implicit def db: () => DefaultDB = () => mongoDb
+  private val driver: MongoDriver = new MongoDriver
+  private val parsedUri: MongoConnection.ParsedURI = MongoConnection.parseURI(connectionUri).get
+  private val connection: MongoConnection = driver.connection(parsedUri)
+  val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
 
-  private lazy val mongoDb = connect
-
-  private def connect = rMh.db
-
-  lazy val rMh: ReactiveMongoHelper = MongoConnection.parseURI(connectionUri) match {
-    case Success(MongoConnection.ParsedURI(hosts, options, ignoreOptions, Some(db), auth)) =>
-      ReactiveMongoHelper(db, hosts.map(h => h._1 + ":" + h._2), auth.toList, failoverStrategy, options)
-    case Success(MongoConnection.ParsedURI(_, _, _, None, _)) =>
-      throw new Exception(s"Missing database name in mongodb.uri '$connectionUri'")
-    case Failure(e) => throw new Exception(s"Invalid mongodb.uri '$connectionUri'", e)
-  }
-
-  def closeConnection(): Future[_] = {
-    Await.ready(rMh.connection.askClose()(10.seconds), 10.seconds)
-  }
+  implicit def db: () => DefaultDB = () => database
 }
