@@ -15,21 +15,20 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-trait MongoResponses {
-  sealed trait MongoCreateResponse
-  sealed trait MongoReadResponse
-  sealed trait MongoUpdatedResponse
-  sealed trait MongoDeleteResponse
+sealed trait MongoCreateResponse
+sealed trait MongoReadResponse
+sealed trait MongoUpdatedResponse
+sealed trait MongoDeleteResponse
 
-  case object MongoSuccessCreate extends MongoCreateResponse
-  case object MongoFailedCreate extends MongoCreateResponse
+case object MongoSuccessCreate extends MongoCreateResponse
+case object MongoFailedCreate extends MongoCreateResponse
 
-  case class MongoSuccessRead(data : Any) extends MongoReadResponse
-  case object MongoFailedRead extends MongoReadResponse
+case class MongoSuccessRead(data : Any) extends MongoReadResponse
+case object MongoFailedRead extends MongoReadResponse
 
-  case object MongoSuccessUpdate extends MongoUpdatedResponse
-  case object MongoFailedUpdate extends MongoUpdatedResponse
+case object MongoSuccessUpdate extends MongoUpdatedResponse
+case object MongoFailedUpdate extends MongoUpdatedResponse
 
-  case object MongoSuccessDelete extends MongoDeleteResponse
-  case object MongoFailedDelete extends MongoDeleteResponse
-}
+case object MongoSuccessDelete extends MongoDeleteResponse
+case object MongoFailedDelete extends MongoDeleteResponse
+

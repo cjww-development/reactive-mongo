@@ -15,6 +15,8 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
+import javax.inject.{Inject, Singleton}
+
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection, MongoDriver}
 
@@ -22,7 +24,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait MongoConnector {
+@Singleton
+class MongoConnector @Inject()() {
 
   val connectionUri: String = ConfigFactory.load.getString("mongo.uri")
   val failoverStrategy: Option[FailoverStrategy] = None
@@ -30,7 +33,7 @@ trait MongoConnector {
   private val driver: MongoDriver = new MongoDriver
   private val parsedUri: MongoConnection.ParsedURI = MongoConnection.parseURI(connectionUri).get
   private val connection: MongoConnection = driver.connection(parsedUri)
-  val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
+  private val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
 
   implicit def db: () => DefaultDB = () => database
 }

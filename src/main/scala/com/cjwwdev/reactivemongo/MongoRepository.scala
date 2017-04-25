@@ -23,7 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 abstract class MongoRepository(collectionName: String,
                                mongo: () => DB,
-                               mc: Option[JSONCollection] = None) extends Indexes with MongoResponses {
+                               mc: Option[JSONCollection] = None) extends Indexes {
 
   lazy val collection: JSONCollection = mc.getOrElse(mongo().collection[JSONCollection](collectionName))
 
