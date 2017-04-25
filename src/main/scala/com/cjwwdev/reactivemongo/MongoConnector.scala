@@ -15,18 +15,17 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
+import com.typesafe.config.ConfigFactory
 import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-case class MongoConnector(connectionUri: String, failoverStrategy: Option[FailoverStrategy]) extends MongoConnectionSettings
+trait MongoConnector {
 
-trait MongoConnectionSettings {
-
-  val connectionUri: String
-  val failoverStrategy: Option[FailoverStrategy]
+  val connectionUri: String = ConfigFactory.load.getString("mongo.uri")
+  val failoverStrategy: Option[FailoverStrategy] = None
 
   implicit def db: () => DefaultDB = () => mongoDb
 

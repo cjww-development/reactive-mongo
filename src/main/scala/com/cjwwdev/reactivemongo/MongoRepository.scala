@@ -16,14 +16,9 @@
 
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.logging.Logger
-import play.api.libs.json.OFormat
-import reactivemongo.api.{DB, ReadPreference}
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json._
+import reactivemongo.api.DB
 import reactivemongo.play.json.collection.JSONCollection
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 abstract class MongoRepository(collectionName: String,
@@ -33,24 +28,4 @@ abstract class MongoRepository(collectionName: String,
   lazy val collection: JSONCollection = mc.getOrElse(mongo().collection[JSONCollection](collectionName))
 
   ensureIndexes
-
-  def create[T](data: T)(implicit oFormat: OFormat[T]): Future[MongoCreateResponse] = {
-    collection.insert(data).map { writeResult =>
-      if(writeResult.ok) {
-        Logger.info(s"[MongoRepository] - [create] : Data was successfully created in ${collection.name}")
-        MongoSuccessCreate
-      } else {
-        Logger.error(s"[MongoRepository] - [create] : There was a problem inserting data into ${collection.name}]")
-        MongoFailedCreate
-      }
-    }
-  }
-
-  def read[T](query: BSONDocument)(implicit oFormat: OFormat[T]): Future[Option[T]] = {
-    collection.find(query).one[T]
-  }
-
-  def readBulk[T](query: BSONDocument)(implicit oFormat: OFormat[T]): Future[List[T]] = {
-    collection.find(query).cursor[T](ReadPreference.primaryPreferred).collect[List]()
-  }
 }
