@@ -16,16 +16,17 @@
 
 package com.cjwwdev.reactivemongo
 
-import reactivemongo.api.DB
 import reactivemongo.play.json.collection.JSONCollection
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class MongoRepository(collectionName: String,
-                               mongo: () => DB,
-                               mc: Option[JSONCollection] = None) extends Indexes {
+abstract class MongoRepository(collectionName: String) extends Indexes {
 
-  lazy val collection: JSONCollection = mc.getOrElse(mongo().collection[JSONCollection](collectionName))
+  val connection = new Connection
 
-  ensureIndexes
+  lazy val collection: JSONCollection = Await.result(connection.collection(collectionName), 10.seconds)
+
+  Await.result(ensureIndexes, 10.seconds)
 }

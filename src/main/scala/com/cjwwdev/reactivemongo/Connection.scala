@@ -15,27 +15,35 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import javax.inject.{Inject, Singleton}
-
+import com.cjwwdev.logging.Logger
 import com.typesafe.config.ConfigFactory
-import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection, MongoDriver}
+import reactivemongo.api.DefaultDB
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import reactivemongo.api.{MongoConnection, MongoDriver}
+import reactivemongo.play.json.collection.JSONCollection
 
-@Singleton
-class MongoConnector @Inject()() {
+class Connection {
 
-  val connectionUri: String = ConfigFactory.load.getString("mongo.uri")
-  val failoverStrategy: Option[FailoverStrategy] = None
+  val mongoUri: String = ConfigFactory.load.getString("mongo.uri")
 
-  private val driver: MongoDriver = new MongoDriver
-  private val parsedUri: MongoConnection.ParsedURI = MongoConnection.parseURI(connectionUri).get
-  private val connection: MongoConnection = driver.connection(parsedUri)
-  private val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
+  def driver = new MongoDriver
 
-  implicit def db: () => DefaultDB = () => database
+  def database: Future[DefaultDB] = for {
+    uri <- Future.fromTry(MongoConnection.parseURI(mongoUri))
+    con = driver.connection(uri)
+    dn <- Future(uri.db.get)
+    db <- con.database(dn)
+  } yield db
+
+  def collection(collectionName: String): Future[JSONCollection] = database map {
+    _.collection[JSONCollection](collectionName)
+  }
 
 
+  database.onComplete { resolution =>
+    Logger.info(s"[Connection] - [database] : DB resolution: $resolution")
+    driver.close()
+  }
 }
