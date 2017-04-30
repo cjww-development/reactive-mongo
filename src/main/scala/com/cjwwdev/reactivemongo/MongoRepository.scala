@@ -28,5 +28,5 @@ abstract class MongoRepository(collectionName: String) extends Indexes {
 
   lazy val collection: JSONCollection = Await.result(connection.collection(collectionName), 10.seconds)
 
-  Await.result(ensureIndexes, 10.seconds)
+  ensureIndexes
 }

@@ -30,11 +30,11 @@ trait Indexes {
 
   private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {
     collection.indexesManager.create(index).map(wr => {
-      if(!wr.ok) Logger.error(s"$message : '${wr.errmsg.get}'")
+      if(!wr.ok) Logger.error(s"[Indexes] - [ensureIndex] $message : '${wr.errmsg.get}'")
       wr.ok
     }).recover {
       case t =>
-        Logger.error(message, t)
+        Logger.error(s"[Indexes] - [ensureIndex] $message", t)
         false
     }
   }
