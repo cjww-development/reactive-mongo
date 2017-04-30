@@ -15,7 +15,6 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.logging.Logger
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.DefaultDB
 
@@ -28,9 +27,9 @@ class Connection {
 
   val mongoUri: String = ConfigFactory.load.getString("mongo.uri")
 
-  def driver = new MongoDriver
+  val driver = new MongoDriver
 
-  def database: Future[DefaultDB] = for {
+  val database: Future[DefaultDB] = for {
     uri <- Future.fromTry(MongoConnection.parseURI(mongoUri))
     con = driver.connection(uri)
     dn <- Future(uri.db.get)
@@ -41,9 +40,7 @@ class Connection {
     _.collection[JSONCollection](collectionName)
   }
 
-
   database.onComplete { resolution =>
-    Logger.info(s"[Connection] - [database] : DB resolution: $resolution")
     driver.close()
   }
 }

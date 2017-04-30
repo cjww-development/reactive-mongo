@@ -36,6 +36,4 @@ class MongoConnector @Inject()() {
   private val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
 
   implicit def db: () => DefaultDB = () => database
-
-
 }
