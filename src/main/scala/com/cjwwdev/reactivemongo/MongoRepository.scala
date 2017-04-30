@@ -16,17 +16,45 @@
 
 package com.cjwwdev.reactivemongo
 
+import com.cjwwdev.logging.Logger
+import reactivemongo.api.DB
+import reactivemongo.api.indexes.Index
+import reactivemongo.core.errors.GenericDatabaseException
 import reactivemongo.play.json.collection.JSONCollection
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-abstract class MongoRepository(collectionName: String) extends Indexes {
+abstract class MongoRepository(collectionName: String,
+                               mongo: () => DB,
+                               mc: Option[JSONCollection] = None) extends Indexes {
 
-  val connection = new Connection
+  lazy val collection: JSONCollection = mc.getOrElse(mongo().collection[JSONCollection](collectionName))
 
-  lazy val collection: JSONCollection = Await.result(connection.collection(collectionName), 10.seconds)
+  ensureIndexes(scala.concurrent.ExecutionContext.Implicits.global)
 
-  ensureIndexes
+  private val DuplicateKeyError = "E11000"
+  private val message: String = "Failed to ensure index"
+
+  private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {
+    collection.indexesManager.create(index).map(wr => {
+      if(!wr.ok) {
+        val maybeMsg = for {
+          msg <- wr.errmsg
+          m <- if (msg.contains(DuplicateKeyError)) {
+            throw GenericDatabaseException(msg, wr.code)
+          }else Some(msg)
+        } yield m
+        Logger.error(s"[MongoRepository] - [ensureIndex] $message : '${maybeMsg.map(_.toString)}'")
+      }
+      wr.ok
+    }).recover {
+      case t =>
+        Logger.error(s"[MongoRepository] - [ensureIndex] $message", t)
+        false
+    }
+  }
+
+  def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
+    Future.sequence(indexes.map(ensureIndex))
+  }
 }

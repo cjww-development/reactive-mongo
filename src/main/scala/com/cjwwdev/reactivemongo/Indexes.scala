@@ -16,30 +16,8 @@
 
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.logging.Logger
 import reactivemongo.api.indexes.Index
-import reactivemongo.play.json.collection.JSONCollection
-
-import scala.concurrent.{ExecutionContext, Future}
 
 trait Indexes {
-  val collection: JSONCollection
-
-  private val message = "Failed to ensure indexes"
   def indexes: Seq[Index] = Seq.empty
-
-  private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {
-    collection.indexesManager.create(index).map(wr => {
-      if(!wr.ok) Logger.error(s"[Indexes] - [ensureIndex] $message : '${wr.errmsg.get}'")
-      wr.ok
-    }).recover {
-      case t =>
-        Logger.error(s"[Indexes] - [ensureIndex] $message", t)
-        false
-    }
-  }
-
-  def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
-    Future.sequence(indexes.map(ensureIndex))
-  }
 }

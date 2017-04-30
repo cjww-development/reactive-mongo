@@ -24,7 +24,6 @@ import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
 class Connection {
-
   val mongoUri: String = ConfigFactory.load.getString("mongo.uri")
 
   val driver = new MongoDriver

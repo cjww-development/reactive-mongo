@@ -33,6 +33,7 @@ class MongoConnector @Inject()() {
   private val driver: MongoDriver = new MongoDriver
   private val parsedUri: MongoConnection.ParsedURI = MongoConnection.parseURI(connectionUri).get
   private val connection: MongoConnection = driver.connection(parsedUri)
+
   private val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
 
   implicit def db: () => DefaultDB = () => database
