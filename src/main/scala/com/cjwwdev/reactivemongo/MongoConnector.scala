@@ -17,6 +17,7 @@ package com.cjwwdev.reactivemongo
 
 import javax.inject.{Inject, Singleton}
 
+import com.cjwwdev.bootstrap.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection, MongoDriver}
 
@@ -25,9 +26,9 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class MongoConnector @Inject()() {
+class MongoConnector @Inject()() extends BaseConfiguration {
 
-  val connectionUri: String = ConfigFactory.load.getString("mongo.uri")
+  val connectionUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
   val failoverStrategy: Option[FailoverStrategy] = None
 
   private val driver: MongoDriver = new MongoDriver
