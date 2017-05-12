@@ -15,6 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
+import com.cjwwdev.bootstrap.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.DefaultDB
 
@@ -23,8 +24,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
-class Connection {
-  val mongoUri: String = ConfigFactory.load.getString("mongo.uri")
+class Connection extends BaseConfiguration {
+  val mongoUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
 
   val driver = new MongoDriver
 
