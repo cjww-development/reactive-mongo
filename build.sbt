@@ -14,12 +14,12 @@ scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 val cjwwDep: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs" % "logging_2.11" % "0.5.0",
-  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.4.2"
+  "com.cjww-dev.libs" % "logging_2.11" % "0.6.0",
+  "com.cjww-dev.libs" % "bootstrapper_2.11" % "1.5.0"
 )
 
 val codeDep: Seq[ModuleID] = Seq(
-  "com.typesafe.play" % "play_2.11" % "2.5.14",
+  "com.typesafe.play" % "play_2.11" % "2.5.15",
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
 )
 
