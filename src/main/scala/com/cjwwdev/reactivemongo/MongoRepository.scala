@@ -17,44 +17,35 @@
 package com.cjwwdev.reactivemongo
 
 import com.cjwwdev.logging.Logger
-import reactivemongo.api.DB
 import reactivemongo.api.indexes.Index
-import reactivemongo.core.errors.GenericDatabaseException
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class MongoRepository(collectionName: String,
-                               mongo: () => DB,
-                               mc: Option[JSONCollection] = None) extends Indexes {
+abstract class MongoRepository(collectionName: String) extends Indexes with MongoConnection {
+  lazy val collection: Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
 
-  lazy val collection: JSONCollection = mc.getOrElse(mongo().collection[JSONCollection](collectionName))
-
-  ensureIndexes(scala.concurrent.ExecutionContext.Implicits.global)
-
-  private val DuplicateKeyError = "E11000"
-  private val message: String = "Failed to ensure index"
+  private val duplicateKeyError = "E11000"
+  private val message = "Failed to ensure index"
 
   private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {
-    collection.indexesManager.create(index).map(wr => {
-      if(!wr.ok) {
-        val maybeMsg = for {
-          msg <- wr.errmsg
-          m <- if (msg.contains(DuplicateKeyError)) {
-            throw GenericDatabaseException(msg, wr.code)
-          }else Some(msg)
-        } yield m
-        Logger.error(s"[MongoRepository] - [ensureIndex] $message : '${maybeMsg.map(_.toString)}'")
+    collection flatMap {
+      _.indexesManager.create(index) map { wr =>
+        wr.writeErrors foreach { mes =>
+          Logger.info(s"[MongoRepository] - [ensureIndex] $message ${mes.errmsg}")
+        }
+        wr.ok
+      } recover {
+        case t =>
+          Logger.info(s"[MongoRepository] - [ensureIndex] $message", t)
+          false
       }
-      wr.ok
-    }).recover {
-      case t =>
-        Logger.error(s"[MongoRepository] - [ensureIndex] $message", t)
-        false
     }
   }
 
   def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
     Future.sequence(indexes.map(ensureIndex))
   }
+  ensureIndexes
 }

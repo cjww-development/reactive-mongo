@@ -15,27 +15,22 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import javax.inject.{Inject, Singleton}
-
 import com.cjwwdev.bootstrap.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
-import reactivemongo.api.{DefaultDB, FailoverStrategy, MongoConnection, MongoDriver}
+import reactivemongo.api.{DefaultDB, MongoDriver, MongoConnection => MConnect}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-@Singleton
-class MongoConnector @Inject()() extends BaseConfiguration {
+trait MongoConnection extends BaseConfiguration {
+  val mongoUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
 
-  val connectionUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
-  val failoverStrategy: Option[FailoverStrategy] = None
+  def driver = new MongoDriver
 
-  private val driver: MongoDriver = new MongoDriver
-  private val parsedUri: MongoConnection.ParsedURI = MongoConnection.parseURI(connectionUri).get
-  private val connection: MongoConnection = driver.connection(parsedUri)
-
-  private val database: DefaultDB = Await.result(connection.database(parsedUri.db.get), 30.seconds)
-
-  implicit def db: () => DefaultDB = () => database
+  val database: Future[DefaultDB] = for {
+    uri <- Future.fromTry(MConnect.parseURI(mongoUri))
+    con = driver.connection(uri)
+    dn  <- Future(uri.db.get)
+    db  <- con.database(dn)
+  } yield db
 }

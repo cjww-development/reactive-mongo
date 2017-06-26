@@ -23,9 +23,6 @@ sealed trait MongoDeleteResponse
 case object MongoSuccessCreate extends MongoCreateResponse
 case object MongoFailedCreate extends MongoCreateResponse
 
-case class MongoSuccessRead(data : Any) extends MongoReadResponse
-case object MongoFailedRead extends MongoReadResponse
-
 case object MongoSuccessUpdate extends MongoUpdatedResponse
 case object MongoFailedUpdate extends MongoUpdatedResponse
 

@@ -18,11 +18,16 @@ val cjwwDep: Seq[ModuleID] = Seq(
 
 val codeDep: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11" % "2.5.15",
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.12.4"
+)
+
+val testDep: Seq[ModuleID] = Seq(
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0"
 )
 
 libraryDependencies ++= cjwwDep
 libraryDependencies ++= codeDep
+libraryDependencies ++= testDep
 
 bintrayOrganization := Some("cjww-development")
 bintrayReleaseOnPublish in ThisBuild := true
