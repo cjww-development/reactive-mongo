@@ -25,7 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait MongoConnection extends BaseConfiguration {
   val mongoUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
 
-  def driver = new MongoDriver
+  val driver = new MongoDriver
 
   val database: Future[DefaultDB] = for {
     uri <- Future.fromTry(MConnect.parseURI(mongoUri))

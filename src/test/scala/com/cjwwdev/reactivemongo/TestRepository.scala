@@ -19,6 +19,7 @@ import play.api.libs.json.Json
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
 
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class TestModel(modelId: String, testString1: String, testString2: String, testInt: Int)
@@ -29,45 +30,33 @@ object TestModel {
 
 class TestRepository extends MongoRepository("test-repo") {
 
+  implicit val duration = 5.seconds
+
   def insertTestModel(model: TestModel) = {
     collection flatMap {
-      _.insert(model) flatMap { wr =>
-        database map { _ =>
-          driver.close()
+      _.insert(model) map { wr =>
           if(wr.ok) MongoSuccessCreate else MongoFailedCreate
-        }
       }
     }
   }
 
   def findTestModel(id: String) = collection.flatMap {
-    _.find(BSONDocument("modelId" -> id)).one[TestModel] flatMap { data =>
-      database map { _ =>
-        driver.close()
-        data
-      }
-    }
+    _.find(BSONDocument("modelId" -> id)).one[TestModel]
   }
 
   def updateTestModel(id: String, testString2Update: String) = {
     val selector = BSONDocument("modelId" -> id)
     val update = BSONDocument("$set" -> BSONDocument("testString2" -> testString2Update))
     collection.flatMap {
-      _.update(selector, update) flatMap { wr =>
-        database map { _ =>
-          driver.close()
-          if(wr.ok) MongoSuccessUpdate else MongoFailedUpdate
-        }
+      _.update(selector, update) map { wr =>
+        if(wr.ok) MongoSuccessUpdate else MongoFailedUpdate
       }
     }
   }
 
   def deleteTestModel(id: String) = collection flatMap {
-    _.remove(BSONDocument("modelId" -> id)) flatMap { wr =>
-      database map { _ =>
-        driver.close()
-        if(wr.ok) MongoSuccessDelete else MongoFailedDelete
-      }
+    _.remove(BSONDocument("modelId" -> id)) map { wr =>
+      if(wr.ok) MongoSuccessDelete else MongoFailedDelete
     }
   }
 }
