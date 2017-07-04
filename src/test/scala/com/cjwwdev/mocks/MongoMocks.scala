@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2017 the original author or authors.
+// Copyright (C) 2011-2012 the original author or authors.
 // See the LICENCE.txt file distributed with this work for additional
 // information regarding copyright ownership.
 //
@@ -13,18 +13,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.bootstrap.config.BaseConfiguration
-import com.typesafe.config.ConfigFactory
-import reactivemongo.api.{DefaultDB, MongoDriver}
+package com.cjwwdev.mocks
 
-import scala.concurrent.Future
+import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito._
+import reactivemongo.api.commands.{UpdateWriteResult, WriteResult}
 
-trait MongoConnection extends BaseConfiguration {
-  val mongoUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
+trait MongoMocks extends MockitoSugar {
 
-  val driver: MongoDriver
+  def mockWriteResult(success: Boolean) : WriteResult = {
+    val mockResult = mock[WriteResult]
+    when(mockResult.ok).thenReturn(success)
+    mockResult
+  }
 
-  val database: Future[DefaultDB]
+  def mockUpdateWriteResult(success: Boolean) : UpdateWriteResult = {
+    val mockResult = mock[UpdateWriteResult]
+    when(mockResult.ok).thenReturn(success)
+    mockResult
+  }
 }

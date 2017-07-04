@@ -17,16 +17,19 @@
 package com.cjwwdev.reactivemongo
 
 import com.cjwwdev.logging.Logger
+import reactivemongo.api.{DefaultDB, MongoDriver, MongoConnection => MConnect}
 import reactivemongo.api.indexes.Index
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class MongoRepository(collectionName: String) extends Indexes with MongoConnection {
+trait MongoRepository extends Indexes with MongoConnection {
+
+  val collectionName: String
+
   lazy val collection: Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
 
-  private val duplicateKeyError = "E11000"
   private val message = "Failed to ensure index"
 
   private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {

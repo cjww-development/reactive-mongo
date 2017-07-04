@@ -15,52 +15,24 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import com.cjwwdev.mocks.MongoMocks
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.mockito.Mockito.when
-import org.mockito.Mockito.reset
-import org.mockito.ArgumentMatchers
 import org.scalatest.BeforeAndAfter
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.ws.ahc.AhcWSClient
-import reactivemongo.api.{DefaultDB, MongoDriver}
-import reactivemongo.play.json.collection.JSONCollection
+import reactivemongo.bson.BSONDocument
+import reactivemongo.play.json._
 
-import scala.concurrent.{Await, Awaitable, Future}
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Awaitable}
 
-class MongoRepositorySpec extends PlaySpec with MockitoSugar with MongoMocks with BeforeAndAfter with GuiceOneAppPerSuite {
+class MongoRepositoryISpec extends PlaySpec with BeforeAndAfter with GuiceOneAppPerSuite {
   def await[T](awaitable: Awaitable[T]) = Await.result(awaitable, 5.seconds)
 
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
-  val ws = AhcWSClient()
-
-  val mockDriver = mock[MongoDriver]
-  val mockDatabase = mock[DefaultDB]
-  val mockCollection = mock[JSONCollection]
-  val mockCollectionName = "TestCollection"
-
-  val testRepository = new TestRepository {
-    override val driver = mockDriver
-    override val database = Future.successful(mockDatabase)
-    override lazy val collection = Future.successful(mockCollection)
-  }
-
-  before(reset(mockCollection))
+  val testRepository = new TestRepository
 
   "insertTestModel" should {
-    val success = mockWriteResult(true)
-
     "insert test model 1 into the database" in {
       val insert = TestModel("Id1", "testOne", "testTwo", 1)
-
-      when(mockCollection.insert(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(success))
 
       val result = await(testRepository.insertTestModel(insert))
       result mustBe MongoSuccessCreate
@@ -69,18 +41,12 @@ class MongoRepositorySpec extends PlaySpec with MockitoSugar with MongoMocks wit
     "insert test model 2 into the database" in {
       val insert = TestModel("Id2", "testOne", "testTwo", 2)
 
-      when(mockCollection.insert(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(success))
-
       val result = await(testRepository.insertTestModel(insert))
       result mustBe MongoSuccessCreate
     }
 
     "insert test model 3 into the database" in {
       val insert = TestModel("Id3", "testOne", "testTwo", 3)
-
-      when(mockCollection.insert(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(success))
 
       val result = await(testRepository.insertTestModel(insert))
       result mustBe MongoSuccessCreate
@@ -89,9 +55,6 @@ class MongoRepositorySpec extends PlaySpec with MockitoSugar with MongoMocks wit
     "insert test model 4 into the database" in {
       val insert = TestModel("Id4", "testOne", "testTwo", 4)
 
-      when(mockCollection.insert(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(success))
-
       val result = await(testRepository.insertTestModel(insert))
       result mustBe MongoSuccessCreate
       await(testRepository.collection map(_.drop(failIfNotFound = false)))
@@ -99,29 +62,29 @@ class MongoRepositorySpec extends PlaySpec with MockitoSugar with MongoMocks wit
   }
 
   "updateTestModel" should {
-    val successUpdate = mockUpdateWriteResult(true)
-
     "update a test model with id 'Id101'" in {
       val testData = TestModel("Id101", "testOne", "testTwo", 101)
 
-      when(mockCollection.update(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(successUpdate))
+      await(testRepository.insertTestModel(testData))
 
       val result = await(testRepository.updateTestModel("Id101", "UPDATED_STRING"))
       result mustBe MongoSuccessUpdate
+
+      val res = await(testRepository.collection flatMap(_.find(BSONDocument("modelId" -> "Id101")).one[TestModel]))
+      res.get.testString2 mustBe "UPDATED_STRING"
+      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
   }
 
   "deleteTestModel" should {
     "remove a document with a specified id" in {
-      val success = mockWriteResult(true)
       val testData = TestModel("Id616", "testOne", "testTwo", 616)
-
-      when(mockCollection.remove(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(success))
-
+      await(testRepository.insertTestModel(testData))
       val result = await(testRepository.deleteTestModel("Id616"))
       result mustBe MongoSuccessDelete
+      val res = await(testRepository.findTestModel("Id616"))
+      res mustBe None
+      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
   }
 }

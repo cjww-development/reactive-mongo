@@ -18,11 +18,12 @@ val cjwwDep: Seq[ModuleID] = Seq(
 
 val codeDep: Seq[ModuleID] = Seq(
   "com.typesafe.play" % "play_2.11" % "2.5.15",
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.12.4"
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
 )
 
 val testDep: Seq[ModuleID] = Seq(
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0"
+  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0",
+  "org.mockito" % "mockito-core" % "2.8.47"
 )
 
 libraryDependencies ++= cjwwDep
