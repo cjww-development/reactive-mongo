@@ -15,7 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.bootstrap.config.BaseConfiguration
+import com.cjwwdev.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
 import reactivemongo.api.{DefaultDB, MongoDriver}
 

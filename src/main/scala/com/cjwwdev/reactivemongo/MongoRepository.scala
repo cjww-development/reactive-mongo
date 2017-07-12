@@ -16,7 +16,7 @@
 
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.logging.Logger
+import play.api.Logger
 import reactivemongo.api.{DefaultDB, MongoDriver, MongoConnection => MConnect}
 import reactivemongo.api.indexes.Index
 import reactivemongo.play.json.collection.JSONCollection
