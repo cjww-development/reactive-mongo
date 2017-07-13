@@ -16,12 +16,10 @@
 package com.cjwwdev.reactivemongo
 
 import play.api.libs.json.Json
-import reactivemongo.api.{DefaultDB, MongoDriver, MongoConnection => MConnect}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 case class TestModel(modelId: String, testString1: String, testString2: String, testInt: Int)
 
@@ -29,18 +27,7 @@ object TestModel {
   implicit val format = Json.format[TestModel]
 }
 
-class TestRepository extends MongoRepository {
-
-  override val collectionName = "TestCollection"
-
-  override val driver = new MongoDriver
-  override val database: Future[DefaultDB] = for {
-    uri <- Future.fromTry(MConnect.parseURI(mongoUri))
-    con =  driver.connection(uri)
-    dn  <- Future(uri.db.get)
-    db  <- con.database(dn)
-  } yield db
-
+class TestRepository extends MongoRepository("TestCollection") {
   def insertTestModel(model: TestModel) = {
     collection flatMap {
       _.insert(model) map { wr =>

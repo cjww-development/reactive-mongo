@@ -17,14 +17,20 @@ package com.cjwwdev.reactivemongo
 
 import com.cjwwdev.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
-import reactivemongo.api.{DefaultDB, MongoDriver}
+import reactivemongo.api.{DefaultDB, MongoDriver, MongoConnection => MConnect}
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MongoConnection extends BaseConfiguration {
   val mongoUri: String = ConfigFactory.load.getString(s"$env.mongo.uri")
 
-  val driver: MongoDriver
+  val driver = new MongoDriver
 
-  val database: Future[DefaultDB]
+  val database: Future[DefaultDB] = for {
+    uri <- Future.fromTry(MConnect.parseURI(mongoUri))
+    con =  driver.connection(uri)
+    dn  <- Future(uri.db.get)
+    db  <- con.database(dn)
+  } yield db
 }
