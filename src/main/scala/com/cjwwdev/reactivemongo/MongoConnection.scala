@@ -27,7 +27,7 @@ trait MongoConnection extends BaseConfiguration {
 
   val driver = new MongoDriver
 
-  val database: Future[DefaultDB] = for {
+  def database: Future[DefaultDB] = for {
     uri <- Future.fromTry(MConnect.parseURI(mongoUri))
     con =  driver.connection(uri)
     dn  <- Future(uri.db.get)

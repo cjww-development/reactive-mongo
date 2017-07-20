@@ -24,16 +24,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 abstract class MongoRepository(collectionName: String) extends Indexes with MongoConnection {
-  lazy val collection: Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
+  def collection: Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
 
   private val message = "Failed to ensure index"
 
   private def ensureIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = {
     collection flatMap {
       _.indexesManager.create(index) map { wr =>
-        wr.writeErrors foreach { mes =>
-          Logger.info(s"[MongoRepository] - [ensureIndex] $message ${mes.errmsg}")
-        }
+        wr.writeErrors foreach (mes => Logger.info(s"[MongoRepository] - [ensureIndex] $message ${mes.errmsg}"))
         wr.ok
       } recover {
         case t =>
