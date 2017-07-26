@@ -15,43 +15,44 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import play.api.libs.json.Json
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
 
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class TestModel(modelId: String, testString1: String, testString2: String, testInt: Int)
+case class TestModel(_id: String, string: String, int: Int)
 
 object TestModel {
-  implicit val format = Json.format[TestModel]
+  implicit val testModelFormat: OFormat[TestModel] = (
+    (__ \ "_id").format[String] and
+    (__ \ "string").format[String] and
+    (__ \ "int").format[Int]
+  )(TestModel.apply, unlift(TestModel.unapply))
 }
 
-class TestRepository extends MongoRepository("TestCollection") {
-  def insertTestModel(model: TestModel) = {
+class TestRepository extends MongoDatabase("test-collection") {
+
+  def create[T](data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = collection.flatMap {
+    _.insert[T](data).map(wr => if(wr.ok) MongoSuccessCreate else MongoFailedCreate)
+  }
+
+  def read[T](id: String)(implicit format: OFormat[T]): Future[Option[T]] = collection flatMap(_.find(BSONDocument("_id" -> id)).one[T])
+
+  def update(id: String, stringUpdate: String): Future[MongoUpdatedResponse] = {
+    val selector = BSONDocument("_id" -> id)
+    val update = BSONDocument("$set" -> BSONDocument("string" -> stringUpdate))
     collection flatMap {
-      _.insert(model) map { wr =>
-          if(wr.ok) MongoSuccessCreate else MongoFailedCreate
-      }
-    }
-  }
-
-  def findTestModel(id: String) = collection.flatMap {
-    _.find(BSONDocument("modelId" -> id)).one[TestModel]
-  }
-
-  def updateTestModel(id: String, testString2Update: String) = {
-    val selector = BSONDocument("modelId" -> id)
-    val update = BSONDocument("$set" -> BSONDocument("testString2" -> testString2Update))
-    collection.flatMap {
       _.update(selector, update) map { wr =>
         if(wr.ok) MongoSuccessUpdate else MongoFailedUpdate
       }
     }
   }
 
-  def deleteTestModel(id: String) = collection flatMap {
-    _.remove(BSONDocument("modelId" -> id)) map { wr =>
+  def delete(id: String): Future[MongoDeleteResponse] = collection flatMap {
+    _.remove(BSONDocument("_id" -> id)) map { wr =>
       if(wr.ok) MongoSuccessDelete else MongoFailedDelete
     }
   }

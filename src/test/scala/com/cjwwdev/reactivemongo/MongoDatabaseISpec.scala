@@ -15,47 +15,58 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import com.cjwwdev.mocks.MongoMocks
 import org.scalatest.BeforeAndAfter
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json._
+import play.api.libs.ws.ahc.AhcWSClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Awaitable}
 
-class MongoRepositoryISpec extends PlaySpec with BeforeAndAfter with GuiceOneAppPerSuite {
+class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with BeforeAndAfter with GuiceOneAppPerSuite {
   def await[T](awaitable: Awaitable[T]) = Await.result(awaitable, 5.seconds)
+
+  implicit val system = ActorSystem()
+  implicit val materializer = ActorMaterializer()
+  val ws = AhcWSClient()
 
   val testRepository = new TestRepository
 
   "insertTestModel" should {
+    await(testRepository.collection map(_.drop(failIfNotFound = false)))
     "insert test model 1 into the database" in {
-      val insert = TestModel("Id1", "testOne", "testTwo", 1)
+      val insert = TestModel("Id1", "testOne", 1)
 
-      val result = await(testRepository.insertTestModel(insert))
+      val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
+      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 2 into the database" in {
-      val insert = TestModel("Id2", "testOne", "testTwo", 2)
+      val insert = TestModel("Id2", "testOne", 2)
 
-      val result = await(testRepository.insertTestModel(insert))
+      val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
+      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 3 into the database" in {
-      val insert = TestModel("Id3", "testOne", "testTwo", 3)
+      val insert = TestModel("Id3", "testOne", 3)
 
-      val result = await(testRepository.insertTestModel(insert))
+      val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
+      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 4 into the database" in {
-      val insert = TestModel("Id4", "testOne", "testTwo", 4)
+      val insert = TestModel("Id4", "testOne", 4)
 
-      val result = await(testRepository.insertTestModel(insert))
+      val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
       await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
@@ -63,28 +74,19 @@ class MongoRepositoryISpec extends PlaySpec with BeforeAndAfter with GuiceOneApp
 
   "updateTestModel" should {
     "update a test model with id 'Id101'" in {
-      val testData = TestModel("Id101", "testOne", "testTwo", 101)
+      val testData = TestModel("Id101", "testOne", 101)
 
-      await(testRepository.insertTestModel(testData))
-
-      val result = await(testRepository.updateTestModel("Id101", "UPDATED_STRING"))
+      val result = await(testRepository.update("Id101", "UPDATED_STRING"))
       result mustBe MongoSuccessUpdate
-
-      val res = await(testRepository.collection flatMap(_.find(BSONDocument("modelId" -> "Id101")).one[TestModel]))
-      res.get.testString2 mustBe "UPDATED_STRING"
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
   }
 
   "deleteTestModel" should {
     "remove a document with a specified id" in {
-      val testData = TestModel("Id616", "testOne", "testTwo", 616)
-      await(testRepository.insertTestModel(testData))
-      val result = await(testRepository.deleteTestModel("Id616"))
+      val testData = TestModel("Id616", "testOne", 616)
+
+      val result = await(testRepository.delete("Id616"))
       result mustBe MongoSuccessDelete
-      val res = await(testRepository.findTestModel("Id616"))
-      res mustBe None
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
   }
 }

@@ -16,16 +16,14 @@
 package com.cjwwdev.reactivemongo
 
 sealed trait MongoCreateResponse
-sealed trait MongoReadResponse
 sealed trait MongoUpdatedResponse
 sealed trait MongoDeleteResponse
 
 case object MongoSuccessCreate extends MongoCreateResponse
-case object MongoFailedCreate extends MongoCreateResponse
+case object MongoFailedCreate  extends MongoCreateResponse
 
 case object MongoSuccessUpdate extends MongoUpdatedResponse
-case object MongoFailedUpdate extends MongoUpdatedResponse
+case object MongoFailedUpdate  extends MongoUpdatedResponse
 
 case object MongoSuccessDelete extends MongoDeleteResponse
-case object MongoFailedDelete extends MongoDeleteResponse
-
+case object MongoFailedDelete  extends MongoDeleteResponse

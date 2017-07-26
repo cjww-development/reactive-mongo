@@ -14,20 +14,20 @@ organization := "com.cjww-dev.libs"
 val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "application-utilities_2.11" % "1.1.0")
 
 val codeDep: Seq[ModuleID] = Seq(
-  "com.typesafe.play" % "play_2.11" % "2.5.15",
+  "com.typesafe.play"  % "play_2.11"           % "2.5.15",
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
 )
 
 val testDep: Seq[ModuleID] = Seq(
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0",
-  "org.mockito" % "mockito-core" % "2.8.47"
+  "org.mockito"            % "mockito-core"            % "2.8.47"
 )
 
 libraryDependencies ++= cjwwDep
 libraryDependencies ++= codeDep
 libraryDependencies ++= testDep
 
-bintrayOrganization := Some("cjww-development")
-bintrayReleaseOnPublish in ThisBuild := true
-bintrayRepository := "releases"
-bintrayOmitLicense := true
+bintrayOrganization                   := Some("cjww-development")
+bintrayReleaseOnPublish in ThisBuild  := true
+bintrayRepository                     := "releases"
+bintrayOmitLicense                    := true
