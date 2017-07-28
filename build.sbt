@@ -11,7 +11,7 @@ version := btVersion
 scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
-val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "application-utilities_2.11" % "1.1.0")
+val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "application-utilities_2.11" % "1.2.0")
 
 val codeDep: Seq[ModuleID] = Seq(
   "com.typesafe.play"  % "play_2.11"           % "2.5.15",
