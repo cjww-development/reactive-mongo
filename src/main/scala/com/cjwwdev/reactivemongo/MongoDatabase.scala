@@ -15,7 +15,6 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.config.BaseConfiguration
 import com.typesafe.config.ConfigFactory
 import play.api.Logger
 import reactivemongo.api.indexes.Index
@@ -25,8 +24,8 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-abstract class MongoDatabase(collectionName: String) extends BaseConfiguration {
-  private lazy val mongoUri = ConfigFactory.load.getString(s"$env.mongo.uri")
+abstract class MongoDatabase(collectionName: String) {
+  private lazy val mongoUri = ConfigFactory.load.getString("microservice.mongo.uri")
   lazy val uri              = MongoConnection.parseURI(mongoUri).get
 
   lazy val dbName           = uri.db.getOrElse("cjww-industries")
