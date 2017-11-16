@@ -16,7 +16,7 @@
 package com.cjwwdev.reactivemongo
 
 import com.typesafe.config.ConfigFactory
-import play.api.Logger
+import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
@@ -35,17 +35,19 @@ abstract class MongoDatabase(collectionName: String) {
 
   private val message       = "Failed to ensure index"
 
+  val logger: Logger = LoggerFactory.getLogger(getClass)
+
   def indexes: Seq[Index]   = Seq.empty
 
   def collection: Future[JSONCollection] = connection.database(dbName) map(_.collection[JSONCollection](collectionName))
 
   def ensureIndex(index: Index): Future[Boolean] = collection.flatMap {
     _.indexesManager.create(index) map { wr =>
-      wr.writeErrors.foreach(mes => Logger.info(s"[MongoDatabase] - [ensureIndex] $message ${mes.errmsg}"))
+      wr.writeErrors.foreach(mes => logger.info(s"[MongoDatabase] - [ensureIndex] $message ${mes.errmsg}"))
       wr.ok
     } recover {
       case t =>
-        Logger.info(s"[MongoDatabase] - [ensureIndex] $message", t)
+        logger.info(s"[MongoDatabase] - [ensureIndex] $message", t)
         false
     }
   }
