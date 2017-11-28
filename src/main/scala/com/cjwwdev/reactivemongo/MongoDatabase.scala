@@ -13,6 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.cjwwdev.reactivemongo
 
 import com.typesafe.config.ConfigFactory
@@ -40,13 +41,11 @@ trait MongoDatabase {
 
   def collection: Future[JSONCollection] = connection.database(dbName) map(_.collection[JSONCollection](collectionName))
 
-  def ensureIndex(index: Index): Future[Boolean] = for {
+  val ensureIndex: Index => Future[Boolean] = index => for {
     col <- collection
     wr  <- col.indexesManager.create(index)
     _   = wr.writeErrors.foreach(we => logger.info(s"[ensureIndex] - Failed to ensure index: ${we.errmsg}"))
-  } yield {
-    wr.ok
-  }
+  } yield wr.ok
 
   def ensureIndexes: Future[Seq[Boolean]] = Future.sequence(indexes.map(ensureIndex))
   ensureIndexes

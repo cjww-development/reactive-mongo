@@ -35,7 +35,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
   val ws = AhcWSClient()
-  
+
   val testRepository = new TestRepository {
     override protected val collectionName = "test-collection"
   }
