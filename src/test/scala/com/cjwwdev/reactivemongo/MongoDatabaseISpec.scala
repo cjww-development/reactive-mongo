@@ -22,6 +22,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.slf4j.LoggerFactory
 import play.api.Configuration
 import play.api.libs.ws.ahc.AhcWSClient
 
@@ -38,6 +39,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
 
   val testRepository = new TestRepository {
     override protected val collectionName = "test-collection"
+    override val logger = LoggerFactory.getLogger("test-class")
   }
 
   "insertTestModel" should {

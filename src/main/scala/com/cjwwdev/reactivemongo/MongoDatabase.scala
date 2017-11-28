@@ -28,14 +28,14 @@ import scala.concurrent.Future
 trait MongoDatabase {
   protected val collectionName: String
 
+  val logger: Logger
+
   private lazy val mongoUri = ConfigFactory.load.getString("microservice.mongo.uri")
   private lazy val uri      = MongoConnection.parseURI(mongoUri).get
   private lazy val dbName   = ConfigFactory.load.getString("appName")
 
   private val driver        = new MongoDriver()
   private val connection    = driver.connection(uri)
-
-  val logger: Logger        = LoggerFactory.getLogger(getClass)
 
   protected def indexes: Seq[Index] = Seq.empty
 
