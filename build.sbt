@@ -11,16 +11,16 @@ version      := btVersion
 scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
-val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "application-utilities_2.11" % "2.3.0")
+val cjwwDep: Seq[ModuleID] = Seq("com.cjww-dev.libs" % "application-utilities_2.11" % "2.6.0")
 
 val codeDep: Seq[ModuleID] = Seq(
-  "com.typesafe.play"  % "play_2.11"           % "2.5.18",
+  "com.typesafe.play"  % "play_2.11"           % "2.5.16",
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14"
 )
 
 val testDep: Seq[ModuleID] = Seq(
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1",
-  "org.mockito"            % "mockito-core"            % "2.10.0"
+  "org.mockito"            % "mockito-core"            % "2.12.0"
 )
 
 libraryDependencies ++= cjwwDep
