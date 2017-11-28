@@ -21,35 +21,31 @@ import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-abstract class MongoDatabase(collectionName: String) {
+trait MongoDatabase {
+  protected val collectionName: String
+
   private lazy val mongoUri = ConfigFactory.load.getString("microservice.mongo.uri")
-  lazy val uri              = MongoConnection.parseURI(mongoUri).get
+  private lazy val uri      = MongoConnection.parseURI(mongoUri).get
+  private lazy val dbName   = ConfigFactory.load.getString("appName")
 
-  lazy val dbName           = uri.db.getOrElse("cjww-industries")
+  private val driver        = new MongoDriver()
+  private val connection    = driver.connection(uri)
 
-  val driver                = new MongoDriver()
-  val connection            = driver.connection(uri)
+  val logger: Logger        = LoggerFactory.getLogger(getClass)
 
-  private val message       = "Failed to ensure index"
-
-  val logger: Logger = LoggerFactory.getLogger(getClass)
-
-  def indexes: Seq[Index]   = Seq.empty
+  protected def indexes: Seq[Index] = Seq.empty
 
   def collection: Future[JSONCollection] = connection.database(dbName) map(_.collection[JSONCollection](collectionName))
 
-  def ensureIndex(index: Index): Future[Boolean] = collection.flatMap {
-    _.indexesManager.create(index) map { wr =>
-      wr.writeErrors.foreach(mes => logger.info(s"[MongoDatabase] - [ensureIndex] $message ${mes.errmsg}"))
-      wr.ok
-    } recover {
-      case t =>
-        logger.info(s"[MongoDatabase] - [ensureIndex] $message", t)
-        false
-    }
+  def ensureIndex(index: Index): Future[Boolean] = for {
+    col <- collection
+    wr  <- col.indexesManager.create(index)
+    _   = wr.writeErrors.foreach(we => logger.info(s"[ensureIndex] - Failed to ensure index: ${we.errmsg}"))
+  } yield {
+    wr.ok
   }
 
   def ensureIndexes: Future[Seq[Boolean]] = Future.sequence(indexes.map(ensureIndex))

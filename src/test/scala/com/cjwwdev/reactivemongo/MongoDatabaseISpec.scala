@@ -22,6 +22,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Configuration
 import play.api.libs.ws.ahc.AhcWSClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,8 +35,10 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
   val ws = AhcWSClient()
-
-  val testRepository = new TestRepository
+  
+  val testRepository = new TestRepository {
+    override protected val collectionName = "test-collection"
+  }
 
   "insertTestModel" should {
     await(testRepository.collection map(_.drop(failIfNotFound = false)))

@@ -33,7 +33,7 @@ object TestModel {
   )(TestModel.apply, unlift(TestModel.unapply))
 }
 
-class TestRepository extends MongoDatabase("test-collection") {
+trait TestRepository extends MongoDatabase {
 
   def create[T](data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = collection.flatMap {
     _.insert[T](data).map(wr => if(wr.ok) MongoSuccessCreate else MongoFailedCreate)
