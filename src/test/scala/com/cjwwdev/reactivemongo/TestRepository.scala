@@ -15,13 +15,16 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import play.api.libs.json._
+import javax.inject.{Inject, Singleton}
+
+import com.cjwwdev.config.ConfigurationLoader
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class TestModel(_id: String, string: String, int: Int)
 
@@ -33,7 +36,8 @@ object TestModel {
   )(TestModel.apply, unlift(TestModel.unapply))
 }
 
-class TestRepository extends MongoDatabase("test-collection") {
+@Singleton
+class TestRepository @Inject()(val configLoader: ConfigurationLoader) extends MongoDatabase {
 
   def create[T](data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = collection.flatMap {
     _.insert[T](data).map(wr => if(wr.ok) MongoSuccessCreate else MongoFailedCreate)

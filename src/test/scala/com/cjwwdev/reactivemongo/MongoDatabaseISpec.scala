@@ -17,12 +17,16 @@ package com.cjwwdev.reactivemongo
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import com.cjwwdev.config.ConfigurationLoaderImpl
 import com.cjwwdev.mocks.MongoMocks
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.ahc.AhcWSClient
+import play.api.test.FakeRequest
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -35,7 +39,25 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
   implicit val materializer = ActorMaterializer()
   val ws = AhcWSClient()
 
-  val testRepository = new TestRepository
+  val additionConfiguration = Map(
+    "microservice.mongo.uri"                              -> "mongodb://localhost:27017/",
+    "com.cjwwdev.reactivemongo.TestRepository.database"   -> "reactive-mongo-test-db",
+    "com.cjwwdev.reactivemongo.TestRepository.collection" -> "test-collection"
+  )
+
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(additionConfiguration)
+    .build()
+
+  val testConfig = app.injector.instanceOf(classOf[ConfigurationLoaderImpl])
+
+  val testRepository = new TestRepository(testConfig) {
+    override lazy val mongoUri       = "mongodb://localhost:27017/"
+    override lazy val dbName         = "reactive-mongo-test-db"
+    override lazy val collectionName = "test-collection"
+  }
+
+  implicit val request = FakeRequest()
 
   "insertTestModel" should {
     await(testRepository.collection map(_.drop(failIfNotFound = false)))

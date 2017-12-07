@@ -15,39 +15,45 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import com.typesafe.config.ConfigFactory
+import com.cjwwdev.config.{ConfigurationLoader, MissingConfigurationException}
 import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-abstract class MongoDatabase(collectionName: String) {
-  private lazy val mongoUri = ConfigFactory.load.getString("microservice.mongo.uri")
-  lazy val uri              = MongoConnection.parseURI(mongoUri).get
+trait MongoDatabase {
+  val configLoader: ConfigurationLoader
 
-  lazy val dbName           = uri.db.getOrElse("cjww-industries")
+  lazy val mongoUri = configLoader.loadedConfig.getString("microservice.mongo.uri")
+    .getOrElse(throw new MissingConfigurationException("Missing uri for mongo"))
 
-  val driver                = new MongoDriver()
-  val connection            = driver.connection(uri)
+  lazy val uri = MongoConnection.parseURI(mongoUri).get
 
-  private val message       = "Failed to ensure index"
+  lazy val dbName = configLoader.loadedConfig.getString(s"$getClass.database")
+    .getOrElse(throw new MissingConfigurationException(s"Missing database name for $getClass"))
+
+  lazy val collectionName = configLoader.loadedConfig.getString(s"$getClass.collection")
+    .getOrElse(throw new MissingConfigurationException(s"Missing collection name for $getClass"))
+
+  private val driver = new MongoDriver()
+  private val connection = driver.connection(uri)
 
   val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  def indexes: Seq[Index]   = Seq.empty
+  def indexes: Seq[Index] = Seq.empty
 
   def collection: Future[JSONCollection] = connection.database(dbName) map(_.collection[JSONCollection](collectionName))
 
   def ensureIndex(index: Index): Future[Boolean] = collection.flatMap {
     _.indexesManager.create(index) map { wr =>
-      wr.writeErrors.foreach(mes => logger.info(s"[MongoDatabase] - [ensureIndex] $message ${mes.errmsg}"))
+      wr.writeErrors.foreach(mes => logger.info(s"[MongoDatabase] - [ensureIndex] - Failed to ensure index ${mes.errmsg}"))
       wr.ok
     } recover {
       case t =>
-        logger.info(s"[MongoDatabase] - [ensureIndex] $message", t)
+        logger.info(s"[MongoDatabase] - [ensureIndex] - Failed to ensure index", t)
         false
     }
   }
