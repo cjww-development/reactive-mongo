@@ -32,10 +32,10 @@ trait MongoDatabase {
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
 
-  lazy val dbName = configLoader.loadedConfig.getString(s"$getClass.database")
+  lazy val dbName = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.database")
     .getOrElse(throw new MissingConfigurationException(s"Missing database name for $getClass"))
 
-  lazy val collectionName = configLoader.loadedConfig.getString(s"$getClass.collection")
+  lazy val collectionName = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.collection")
     .getOrElse(throw new MissingConfigurationException(s"Missing collection name for $getClass"))
 
   private val driver = new MongoDriver()
