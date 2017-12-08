@@ -16,6 +16,7 @@
 package com.cjwwdev.reactivemongo
 
 import com.cjwwdev.config.{ConfigurationLoader, MissingConfigurationException}
+import com.typesafe.config.ConfigFactory
 import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
@@ -25,18 +26,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait MongoDatabase {
-  val configLoader: ConfigurationLoader
-
-  lazy val mongoUri = configLoader.loadedConfig.getString("microservice.mongo.uri")
-    .getOrElse(throw new MissingConfigurationException("Missing uri for mongo"))
+  lazy val mongoUri = ConfigFactory.load.getString("microservice.mongo.uri")
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
 
-  lazy val dbName = configLoader.loadedConfig.getString(s"$getClass.database")
-    .getOrElse(throw new MissingConfigurationException(s"Missing database name for $getClass"))
+  lazy val dbName = ConfigFactory.load.getString(s"$getClass.database")
 
-  lazy val collectionName = configLoader.loadedConfig.getString(s"$getClass.collection")
-    .getOrElse(throw new MissingConfigurationException(s"Missing collection name for $getClass"))
+  lazy val collectionName = ConfigFactory.load.getString(s"$getClass.collection")
 
   private val driver = new MongoDriver()
   private val connection = driver.connection(uri)
