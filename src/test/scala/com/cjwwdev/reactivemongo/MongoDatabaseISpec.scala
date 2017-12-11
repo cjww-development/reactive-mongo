@@ -40,7 +40,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
   val ws = AhcWSClient()
 
   val additionConfiguration = Map(
-    "microservice.mongo.uri"                              -> "mongodb://localhost:27017/",
+    "com.cjwwdev.reactivemongo.TestRepository.database" -> "mongodb://localhost:27017/",
     "com.cjwwdev.reactivemongo.TestRepository.database"   -> "reactive-mongo-test-db",
     "com.cjwwdev.reactivemongo.TestRepository.collection" -> "test-collection"
   )

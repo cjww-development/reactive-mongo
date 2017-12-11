@@ -27,7 +27,7 @@ import scala.concurrent.Future
 trait MongoDatabase {
   val configLoader: ConfigurationLoader
 
-  lazy val mongoUri = configLoader.loadedConfig.getString("microservice.mongo.uri")
+  lazy val mongoUri = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.uri")
     .getOrElse(throw new MissingConfigurationException("Missing uri for mongo"))
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
