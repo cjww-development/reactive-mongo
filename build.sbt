@@ -9,7 +9,7 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.cjww-dev.libs"      % "application-utilities_2.11" % "2.8.0",
+  "com.cjww-dev.libs"      % "application-utilities_2.11" % "2.10.0",
   "com.typesafe.play"      % "play_2.11"                  % "2.5.16",
   "org.reactivemongo"     %% "play2-reactivemongo"        % "0.11.14",
   "org.scalatestplus.play" % "scalatestplus-play_2.11"    % "2.0.1",

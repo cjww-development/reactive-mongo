@@ -17,7 +17,6 @@ package com.cjwwdev.reactivemongo
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import com.cjwwdev.config.ConfigurationLoaderImpl
 import com.cjwwdev.mocks.MongoMocks
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
@@ -49,9 +48,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
     .configure(additionConfiguration)
     .build()
 
-  val testConfig = app.injector.instanceOf(classOf[ConfigurationLoaderImpl])
-
-  val testRepository = new TestRepository(testConfig) {
+  val testRepository = new TestRepository {
     override lazy val mongoUri       = "mongodb://localhost:27017/"
     override lazy val dbName         = "reactive-mongo-test-db"
     override lazy val collectionName = "test-collection"

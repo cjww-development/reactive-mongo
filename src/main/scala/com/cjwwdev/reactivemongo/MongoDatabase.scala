@@ -15,7 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.reactivemongo
 
-import com.cjwwdev.config.{ConfigurationLoader, MissingConfigurationException}
+import com.cjwwdev.config.ConfigurationLoader
 import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.indexes.Index
 import reactivemongo.api.{MongoConnection, MongoDriver}
@@ -24,19 +24,13 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait MongoDatabase {
-  val configLoader: ConfigurationLoader
+trait MongoDatabase extends ConfigurationLoader {
 
-  lazy val mongoUri = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.uri")
-    .getOrElse(throw new MissingConfigurationException("Missing uri for mongo"))
+  lazy val mongoUri       = loadedConfig.getString(s"${getClass.getCanonicalName}.uri")
+  lazy val dbName         = loadedConfig.getString(s"${getClass.getCanonicalName}.database")
+  lazy val collectionName = loadedConfig.getString(s"${getClass.getCanonicalName}.collection")
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
-
-  lazy val dbName = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.database")
-    .getOrElse(throw new MissingConfigurationException(s"Missing database name for $getClass"))
-
-  lazy val collectionName = configLoader.loadedConfig.getString(s"${getClass.getCanonicalName}.collection")
-    .getOrElse(throw new MissingConfigurationException(s"Missing collection name for $getClass"))
 
   private val driver = new MongoDriver()
   private val connection = driver.connection(uri)
@@ -49,7 +43,7 @@ trait MongoDatabase {
 
   def ensureIndex(index: Index): Future[Boolean] = collection.flatMap {
     _.indexesManager.create(index) map { wr =>
-      wr.writeErrors.foreach(mes => logger.info(s"[MongoDatabase] - [ensureIndex] - Failed to ensure index ${mes.errmsg}"))
+      wr.writeErrors.foreach(mes => logger.error(s"[MongoDatabase] - [ensureIndex] - Failed to ensure index ${mes.errmsg}"))
       wr.ok
     } recover {
       case t =>

@@ -37,8 +37,7 @@ object TestModel {
 }
 
 @Singleton
-class TestRepository @Inject()(val configLoader: ConfigurationLoader) extends MongoDatabase {
-
+class TestRepository @Inject()() extends MongoDatabase {
   def create[T](data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = collection.flatMap {
     _.insert[T](data).map(wr => if(wr.ok) MongoSuccessCreate else MongoFailedCreate)
   }
