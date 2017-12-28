@@ -22,7 +22,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
+import play.api.{Application, Configuration}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.ahc.AhcWSClient
 import play.api.test.FakeRequest
@@ -32,24 +32,15 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Awaitable}
 
 class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with BeforeAndAfter with GuiceOneAppPerSuite {
-  def await[T](awaitable: Awaitable[T]) = Await.result(awaitable, 5.seconds)
+  def await[T](awaitable: Awaitable[T]) = Await.result(awaitable, 5.minute)
 
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
   val ws = AhcWSClient()
 
-  val additionConfiguration = Map(
-    "com.cjwwdev.reactivemongo.TestRepository.database" -> "mongodb://localhost:27017/",
-    "com.cjwwdev.reactivemongo.TestRepository.database"   -> "reactive-mongo-test-db",
-    "com.cjwwdev.reactivemongo.TestRepository.collection" -> "test-collection"
-  )
-
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(additionConfiguration)
-    .build()
-
   val testRepository = new TestRepository {
-    override lazy val mongoUri       = "mongodb://localhost:27017/"
+    override val loadedConfig = Configuration()
+    override lazy val mongoUri       = "mongodb://localhost:27017"
     override lazy val dbName         = "reactive-mongo-test-db"
     override lazy val collectionName = "test-collection"
   }
@@ -63,7 +54,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
 
       val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
+      //await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 2 into the database" in {
@@ -71,7 +62,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
 
       val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
+      //await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 3 into the database" in {
@@ -79,7 +70,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
 
       val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
+      //await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
 
     "insert test model 4 into the database" in {
@@ -87,7 +78,7 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
 
       val result = await(testRepository.create(insert))
       result mustBe MongoSuccessCreate
-      await(testRepository.collection map(_.drop(failIfNotFound = false)))
+      //await(testRepository.collection map(_.drop(failIfNotFound = false)))
     }
   }
 

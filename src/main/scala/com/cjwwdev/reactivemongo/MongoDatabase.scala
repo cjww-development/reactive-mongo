@@ -26,9 +26,9 @@ import scala.concurrent.Future
 
 trait MongoDatabase extends ConfigurationLoader {
 
-  lazy val mongoUri       = loadedConfig.getString(s"${getClass.getCanonicalName}.uri")
-  lazy val dbName         = loadedConfig.getString(s"${getClass.getCanonicalName}.database")
-  lazy val collectionName = loadedConfig.getString(s"${getClass.getCanonicalName}.collection")
+  lazy val mongoUri       = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.uri")
+  lazy val dbName         = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.database")
+  lazy val collectionName = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.collection")
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
 

@@ -36,8 +36,7 @@ object TestModel {
   )(TestModel.apply, unlift(TestModel.unapply))
 }
 
-@Singleton
-class TestRepository @Inject()() extends MongoDatabase {
+trait TestRepository extends MongoDatabase {
   def create[T](data: T)(implicit format: OFormat[T]): Future[MongoCreateResponse] = collection.flatMap {
     _.insert[T](data).map(wr => if(wr.ok) MongoSuccessCreate else MongoFailedCreate)
   }
