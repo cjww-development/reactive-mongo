@@ -17,7 +17,9 @@ package com.cjwwdev.reactivemongo
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import com.cjwwdev.config.ConfigurationLoader
 import com.cjwwdev.mocks.MongoMocks
+import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -38,8 +40,12 @@ class MongoDatabaseISpec extends PlaySpec with MockitoSugar with MongoMocks with
   implicit val materializer = ActorMaterializer()
   val ws = AhcWSClient()
 
+  val testConfig = new ConfigurationLoader {
+    override val loadedConfig = Configuration(ConfigFactory.load)
+  }
+
   val testRepository = new TestRepository {
-    override val loadedConfig = Configuration()
+    override val configurationLoader = testConfig
     override lazy val mongoUri       = "mongodb://localhost:27017"
     override lazy val dbName         = "reactive-mongo-test-db"
     override lazy val collectionName = "test-collection"

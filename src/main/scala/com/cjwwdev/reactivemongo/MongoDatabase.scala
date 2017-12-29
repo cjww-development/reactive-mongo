@@ -24,11 +24,12 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait MongoDatabase extends ConfigurationLoader {
+trait MongoDatabase {
+  val configurationLoader: ConfigurationLoader
 
-  lazy val mongoUri       = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.uri")
-  lazy val dbName         = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.database")
-  lazy val collectionName = loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.collection")
+  lazy val mongoUri       = configurationLoader.loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.uri")
+  lazy val dbName         = configurationLoader.loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.database")
+  lazy val collectionName = configurationLoader.loadedConfig.underlying.getString(s"${getClass.getCanonicalName}.collection")
 
   lazy val uri = MongoConnection.parseURI(mongoUri).get
 
