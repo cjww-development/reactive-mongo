@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"   % "1.2.0")
-addSbtPlugin("com.typesafe.play"  % "sbt-plugin"            % "2.5.16")
-addSbtPlugin("me.lessis"          % "bintray-sbt"           % "0.3.0")
-addSbtPlugin("com.github.gseitz"  % "sbt-release"           % "1.0.3")
-addSbtPlugin("org.scalastyle"    %% "scalastyle-sbt-plugin" % "1.0.0")
-addSbtPlugin("org.scoverage"      % "sbt-scoverage"         % "1.5.1")
+package com.cjwwdev.mongo.responses
+
+sealed trait MongoCreateResponse
+sealed trait MongoUpdatedResponse
+sealed trait MongoDeleteResponse
+
+case object MongoSuccessCreate extends MongoCreateResponse
+case object MongoFailedCreate  extends MongoCreateResponse
+
+case object MongoSuccessUpdate extends MongoUpdatedResponse
+case object MongoFailedUpdate  extends MongoUpdatedResponse
+
+case object MongoSuccessDelete extends MongoDeleteResponse
+case object MongoFailedDelete  extends MongoDeleteResponse
