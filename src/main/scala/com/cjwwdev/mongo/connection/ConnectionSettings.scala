@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"   % "1.2.0")
-addSbtPlugin("com.typesafe.play"  % "sbt-plugin"            % "2.5.16")
-addSbtPlugin("me.lessis"          % "bintray-sbt"           % "0.3.0")
-addSbtPlugin("com.github.gseitz"  % "sbt-release"           % "1.0.3")
-addSbtPlugin("org.scalastyle"    %% "scalastyle-sbt-plugin" % "1.0.0")
-addSbtPlugin("org.scoverage"      % "sbt-scoverage"         % "1.5.1")
+package com.cjwwdev.mongo.connection
+
+import com.typesafe.config.ConfigFactory
+
+trait ConnectionSettings {
+  private val config = ConfigFactory.load
+
+  lazy val mongoUri       = config.getString(s"${getClass.getCanonicalName}.uri")
+  lazy val dbName         = config.getString(s"${getClass.getCanonicalName}.database")
+  lazy val collectionName = config.getString(s"${getClass.getCanonicalName}.collection")
+}
