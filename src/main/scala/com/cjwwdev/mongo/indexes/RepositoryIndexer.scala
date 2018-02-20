@@ -40,6 +40,6 @@ trait RepositoryIndexer extends {
         logger.info(s"Indexes ensure for repository ${repo.getClass.getCanonicalName}")
       }
       boolSeq
-    }, 5.seconds)
+    }, 20.seconds)
   }
 }

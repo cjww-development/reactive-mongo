@@ -9,27 +9,29 @@ Mechanisms to connect to a MongoDB database (reactive mongo implementation)
 To utilise this library add this to your sbt build file
 
 ```
-"com.cjww-dev.libs" % "reactive-mongo_2.11" % "3.4.0" 
+"com.cjww-dev.libs" % "reactive-mongo_2.11" % "x.x.x" 
 ```
 
 ## About
 #### Configuration
-Add this snippet to your application.conf file.
+Configuration for uri, database and collection is derived from the database repositories package structure.
+
 
 ```hocon
-    microservice {
-      mongo {
+    package.structure {
+      RepositoryClass {
         uri = ""
+        database = ""
+        collection = ""
       }
     }
 ```
 
-#### MongoDatabase.scala
-Flatmapping **collection** from this abstract class will grant access to mongo CRUD operations.
+#### com.cjwwdev.mongo.DatabaseRepository
+Flatmapping **collection** from this trait class will grant access to mongo CRUD operations.
 
 ```scala
-    class ExampleMongoRepository extends MongoDatabase("example-collection") {
-      
+    class ExampleDataBaseRepository extends DatabaseRepository {
       def findById(id: String): Option[JsObject] = {
         collection flatMap {
           _.find(BSONDocument("_id" -> id)).one[JsObject]
@@ -37,6 +39,18 @@ Flatmapping **collection** from this abstract class will grant access to mongo C
       }
     }
 ``` 
+
+#### com.cjwwdev.mongo.indexes.RepositoryIndexer
+To ensure each of your repositories indexes are ensured you need to implement RepositoryIndexer. Provide each of your repositories
+in a sequence. like so
+
+```scala
+    class ExampleRepoIndexer extends RepositoryIndexer {
+      override val repositories: Seq[DatabaseRepository] = Seq(TestRepo1, TestRepo2)
+      
+      runIndexing
+    }
+```
 
 ### License
 
