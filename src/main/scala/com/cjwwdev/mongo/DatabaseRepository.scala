@@ -19,4 +19,4 @@ package com.cjwwdev.mongo
 import com.cjwwdev.mongo.connection.{Collection, ConnectionSettings}
 import com.cjwwdev.mongo.indexes.Indexing
 
-trait DatabaseRepository extends Collection with Indexing with ConnectionSettings
+trait DatabaseRepository extends Collection with Indexing

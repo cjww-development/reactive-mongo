@@ -16,12 +16,12 @@
 
 package com.cjwwdev.mongo.connection
 
-import com.typesafe.config.ConfigFactory
+import play.api.Configuration
 
 trait ConnectionSettings {
-  private val config = ConfigFactory.load
+  val config: Configuration
 
-  lazy val mongoUri       = config.getString(s"${getClass.getCanonicalName}.uri")
-  lazy val dbName         = config.getString(s"${getClass.getCanonicalName}.database")
-  lazy val collectionName = config.getString(s"${getClass.getCanonicalName}.collection")
+  lazy val mongoUri       = config.underlying.getString(s"${getClass.getCanonicalName}.uri")
+  lazy val dbName         = config.underlying.getString(s"${getClass.getCanonicalName}.database")
+  lazy val collectionName = config.underlying.getString(s"${getClass.getCanonicalName}.collection")
 }
