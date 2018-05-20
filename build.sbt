@@ -27,9 +27,9 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"      % "play_2.11"                  % "2.5.16",
-  "org.reactivemongo"     %% "play2-reactivemongo"        % "0.12.6-play25",
-  "com.cjww-dev.libs"      % "testing-framework_2.11"     % "2.1.0"           % Test
+  "com.typesafe.play"      % "play_2.12"                  % "2.6.13",
+  "org.reactivemongo"     %% "play2-reactivemongo"        % "0.13.0-play26",
+  "com.cjww-dev.libs"      % "testing-framework_2.12"     % "3.0.0"           % Test
 )
 
 lazy val scoverageSettings = Seq(
@@ -42,13 +42,13 @@ lazy val scoverageSettings = Seq(
 lazy val library = Project(libraryName, file("."))
   .settings(scoverageSettings:_*)
   .settings(
-    version                               :=  btVersion,
-    scalaVersion                          :=  "2.11.12",
-    organization                          :=  "com.cjww-dev.libs",
-    resolvers                             ++= Seq("cjww-dev" at "http://dl.bintray.com/cjww-development/releases"),
-    libraryDependencies                   ++= dependencies,
-    bintrayOrganization                   :=  Some("cjww-development"),
-    bintrayReleaseOnPublish in ThisBuild  :=  true,
-    bintrayRepository                     :=  "releases",
-    bintrayOmitLicense                    :=  true
+    version                              :=  btVersion,
+    scalaVersion                         :=  "2.12.6",
+    organization                         :=  "com.cjww-dev.libs",
+    resolvers                            ++= Seq("cjww-dev" at "http://dl.bintray.com/cjww-development/releases"),
+    libraryDependencies                  ++= dependencies,
+    bintrayOrganization                  :=  Some("cjww-development"),
+    bintrayReleaseOnPublish in ThisBuild :=  true,
+    bintrayRepository                    :=  "releases",
+    bintrayOmitLicense                   :=  true
   )
