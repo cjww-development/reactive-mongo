@@ -35,7 +35,7 @@ class RepositoryIndexerSpec extends UnitTestSpec {
         override val repositories = Seq(new TestRepoImpl)
       }
 
-      testRepoIndexer.runIndexing mustBe Seq((Seq(true)))
+      await(testRepoIndexer.runIndexing) mustBe Seq(true)
     }
   }
 }
