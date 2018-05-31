@@ -32,14 +32,16 @@ trait RepositoryIndexer extends {
     Future.sequence(repo.indexes map repo.ensureSingleIndex)
   }
 
-  def runIndexing: Seq[Seq[Boolean]] = repositories map { repo =>
-    Await.result(ensureMultipleIndexes(repo) map { boolSeq =>
-      if(boolSeq.contains(false)) {
-        logger.error(s"There was a problem ensuring one or more of the indexes for ${repo.getClass.getCanonicalName}")
-      } else {
-        logger.info(s"Indexes ensure for repository ${repo.getClass.getCanonicalName}")
+  def runIndexing: Future[Seq[Boolean]] = {
+    Future.sequence(repositories map { repo =>
+      ensureMultipleIndexes(repo) map { boolSeq =>
+        if(boolSeq.contains(false)) {
+          logger.error(s"There was a problem ensuring one or more of the indexes for ${repo.getClass.getCanonicalName}")
+        } else {
+          logger.info(s"Indexes ensure for repository ${repo.getClass.getCanonicalName}")
+        }
+        boolSeq
       }
-      boolSeq
-    }, 20.seconds)
+    }) map(_.flatten)
   }
 }
