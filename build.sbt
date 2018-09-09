@@ -27,9 +27,9 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"      % "play_2.12"                  % "2.6.15",
-  "org.reactivemongo"     %% "play2-reactivemongo"        % "0.13.0-play26",
-  "com.cjww-dev.libs"      % "testing-framework_2.12"     % "3.0.0"           % Test
+  "com.typesafe.play"  % "play_2.12"              % "2.6.18",
+  "org.reactivemongo" %% "play2-reactivemongo"    % "0.13.0-play26",
+  "com.cjww-dev.libs"  % "testing-framework_2.12" % "3.2.0"          % Test
 )
 
 lazy val scoverageSettings = Seq(
