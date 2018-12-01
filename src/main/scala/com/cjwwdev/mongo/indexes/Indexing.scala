@@ -20,8 +20,7 @@ import com.cjwwdev.mongo.connection.Collection
 import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.indexes.Index
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait Indexing {
   self: Collection =>
@@ -30,7 +29,7 @@ trait Indexing {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  def ensureSingleIndex(index: Index): Future[Boolean] = collection flatMap {
+  def ensureSingleIndex(index: Index)(implicit ec: ExecutionContext): Future[Boolean] = collection flatMap {
     _.indexesManager.create(index) map { wr =>
       wr.writeErrors.foreach(mes => logger.error(s"Indexing - Failed to ensure index ${index.name} => ${mes.errmsg}"))
       wr.ok

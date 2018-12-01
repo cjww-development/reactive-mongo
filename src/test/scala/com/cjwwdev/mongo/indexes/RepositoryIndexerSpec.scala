@@ -19,8 +19,6 @@ package com.cjwwdev.mongo.indexes
 import com.cjwwdev.mongo.TestRepository
 import com.cjwwdev.testing.unit.UnitTestSpec
 
-import scala.concurrent.Future
-
 class RepositoryIndexerSpec extends UnitTestSpec {
 
   class TestRepoImpl extends TestRepository {

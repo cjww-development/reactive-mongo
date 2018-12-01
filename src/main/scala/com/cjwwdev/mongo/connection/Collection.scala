@@ -20,8 +20,7 @@ import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait Collection {
   val mongoUri, dbName, collectionName: String
@@ -33,7 +32,7 @@ trait Collection {
   private val driver     = MongoDriver()
   private val connection = driver.connection(parsedUri)
 
-  private def database: Future[DefaultDB] = connection.database(dbName)
+  private def database(implicit ec: ExecutionContext): Future[DefaultDB] = connection.database(dbName)
 
-  def collection: Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
+  def collection(implicit ec: ExecutionContext): Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
 }

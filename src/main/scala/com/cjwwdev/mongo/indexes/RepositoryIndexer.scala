@@ -19,20 +19,18 @@ package com.cjwwdev.mongo.indexes
 import com.cjwwdev.mongo.DatabaseRepository
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 trait RepositoryIndexer extends {
   val repositories: Seq[DatabaseRepository]
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  private def ensureMultipleIndexes(repo: DatabaseRepository): Future[Seq[Boolean]] = {
+  private def ensureMultipleIndexes(repo: DatabaseRepository)(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
     Future.sequence(repo.indexes map repo.ensureSingleIndex)
   }
 
-  def runIndexing: Future[Seq[Boolean]] = {
+  def runIndexing(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
     Future.sequence(repositories map { repo =>
       ensureMultipleIndexes(repo) map { boolSeq =>
         if(boolSeq.contains(false)) {
