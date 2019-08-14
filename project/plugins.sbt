@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 CJWW Development
+ * Copyright 2019 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin"            % "2.6.20")
-addSbtPlugin("org.scoverage"     % "sbt-scoverage"         % "1.5.1")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin"            % "2.7.3")
+addSbtPlugin("org.scoverage"     % "sbt-scoverage"         % "1.6.0")
 addSbtPlugin("org.scalastyle"   %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("com.typesafe.sbt"  % "sbt-native-packager"   % "1.3.4")
 addSbtPlugin("org.foundweekends" % "sbt-bintray"           % "0.5.4")

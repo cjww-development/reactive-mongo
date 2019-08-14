@@ -9,8 +9,14 @@ Mechanisms to connect to a MongoDB database (reactive mongo implementation)
 To utilise this library add this to your sbt build file
 
 ```
-"com.cjww-dev.libs" % "reactive-mongo_2.11" % "x.x.x" 
+"com.cjww-dev.libs" % "reactive-mongo_2.13" % "x.x.x" 
 ```
+
+| Major Version | Scala Version |
+|---------------|---------------|
+| 0.x.x - 6.x.x | 2.11.x        |
+| 7.x.x         | 2.12.x        |
+| 8.x.x         | 2.13.x        |
 
 ## About
 #### Configuration

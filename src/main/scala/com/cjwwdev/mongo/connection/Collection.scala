@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 CJWW Development
+ * Copyright 2019 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.cjwwdev.mongo.connection
 
-import org.slf4j.{Logger, LoggerFactory}
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -25,14 +24,17 @@ import scala.concurrent.{ExecutionContext, Future}
 trait Collection {
   val mongoUri, dbName, collectionName: String
 
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
-
   private lazy val parsedUri = MongoConnection.parseURI(mongoUri).get
 
   private val driver     = MongoDriver()
-  private val connection = driver.connection(parsedUri)
+  private val connection = driver.connection(parsedUri, strictUri = true)
 
-  private def database(implicit ec: ExecutionContext): Future[DefaultDB] = connection.database(dbName)
+  private def database(implicit ec: ExecutionContext): Future[DefaultDB] = {
+    connection.fold(
+      e => throw e,
+      _.database(dbName)
+    )
+  }
 
   def collection(implicit ec: ExecutionContext): Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
 }

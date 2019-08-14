@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 CJWW Development
+ * Copyright 2019 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,9 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"  % "play_2.12"              % "2.6.20",
-  "org.reactivemongo" %% "play2-reactivemongo"    % "0.13.0-play26",
-  "com.cjww-dev.libs"  % "testing-framework_2.12" % "3.2.0"          % Test
+  "com.typesafe.play"  % "play_2.13"              % "2.7.3",
+  "org.reactivemongo" %% "play2-reactivemongo"    % "0.18.4-play27",
+  "com.cjww-dev.libs"  % "testing-framework_2.13" % "4.0.0"          % Test
 )
 
 lazy val scoverageSettings = Seq(
@@ -43,12 +43,13 @@ lazy val library = Project(libraryName, file("."))
   .settings(scoverageSettings:_*)
   .settings(
     version                              :=  btVersion,
-    scalaVersion                         :=  "2.12.7",
+    scalaVersion                         :=  "2.13.0",
     organization                         :=  "com.cjww-dev.libs",
     resolvers                            ++= Seq("cjww-dev" at "http://dl.bintray.com/cjww-development/releases"),
     libraryDependencies                  ++= dependencies,
     bintrayOrganization                  :=  Some("cjww-development"),
     bintrayReleaseOnPublish in ThisBuild :=  true,
     bintrayRepository                    :=  "releases",
-    bintrayOmitLicense                   :=  true
+    bintrayOmitLicense                   :=  true,
+    scalacOptions           in ThisBuild ++= Seq("-unchecked", "-deprecation")
   )
