@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 CJWW Development
+ * Copyright 2020 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,24 @@
 package com.cjwwdev.mongo.indexes
 
 import com.cjwwdev.mongo.TestRepository
-import com.cjwwdev.testing.unit.UnitTestSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
-class RepositoryIndexerSpec extends UnitTestSpec {
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class RepositoryIndexerSpec extends AnyFlatSpec with Matchers {
 
   class TestRepoImpl extends TestRepository {
     override lazy val mongoUri        = "mongodb://localhost:27017"
     override lazy val dbName          = "cjww-test-db"
     override lazy val collectionName  = "test-collection-name"
+    override val ec                   = ExecutionContext.global
   }
 
   "RepositoryIndexer" should {
     "be successful" in {
-      val testRepoIndexer = new RepositoryIndexer {
+      val testRepoIndexer: RepositoryIndexer = new RepositoryIndexer {
         override val repositories = Seq(new TestRepoImpl)
       }
 

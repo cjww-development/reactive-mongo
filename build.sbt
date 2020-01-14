@@ -27,9 +27,11 @@ val btVersion: String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"  % "play_2.13"              % "2.7.3",
-  "org.reactivemongo" %% "play2-reactivemongo"    % "0.18.4-play27",
-  "com.cjww-dev.libs"  % "testing-framework_2.13" % "4.0.0"          % Test
+  "com.typesafe.play"  % "play_2.13"           % "2.8.0",
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.20.1-play28",
+  "org.mongodb.scala" %% "mongo-scala-driver"  % "2.8.0",
+  "org.scalactic"     %% "scalactic"           % "3.1.0",
+  "org.scalatest"     %% "scalatest"           % "3.1.0"          % Test
 )
 
 lazy val scoverageSettings = Seq(
@@ -43,7 +45,7 @@ lazy val library = Project(libraryName, file("."))
   .settings(scoverageSettings:_*)
   .settings(
     version                              :=  btVersion,
-    scalaVersion                         :=  "2.13.0",
+    scalaVersion                         :=  "2.13.1",
     organization                         :=  "com.cjww-dev.libs",
     resolvers                            ++= Seq("cjww-dev" at "http://dl.bintray.com/cjww-development/releases"),
     libraryDependencies                  ++= dependencies,

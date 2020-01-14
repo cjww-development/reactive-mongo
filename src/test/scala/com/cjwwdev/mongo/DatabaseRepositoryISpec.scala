@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 CJWW Development
+ * Copyright 2020 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,21 @@
 package com.cjwwdev.mongo
 
 import com.cjwwdev.mongo.responses.{MongoSuccessCreate, MongoSuccessDelete, MongoSuccessUpdate}
-import com.cjwwdev.testing.unit.UnitTestSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
-class DatabaseRepositoryISpec extends UnitTestSpec {
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  val testRepository = new TestRepository {
-    override lazy val mongoUri        = "mongodb://localhost:27017"
-    override lazy val dbName          = "cjww-test-db"
-    override lazy val collectionName  = "test-collection-name"
+class DatabaseRepositoryISpec extends AnyFlatSpec with Matchers {
+  val testRepository: TestRepository = new TestRepository {
+    override lazy val mongoUri       = "mongodb://localhost:27017"
+    override lazy val dbName         = "cjww-test-db"
+    override lazy val collectionName = "test-collection-name"
+    override implicit val ec         = ExecutionContext.global
   }
+
+  "insertTestModel" should ""
 
   "insertTestModel" should {
     await(testRepository.collection map(_.drop(failIfNotFound = false)))

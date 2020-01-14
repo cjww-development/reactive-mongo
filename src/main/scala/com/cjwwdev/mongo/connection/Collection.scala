@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 CJWW Development
+ * Copyright 2020 CJWW Development
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.cjwwdev.mongo.connection
 
-import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
+import reactivemongo.api.{AsyncDriver, DefaultDB, MongoConnection}
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,17 +24,14 @@ import scala.concurrent.{ExecutionContext, Future}
 trait Collection {
   val mongoUri, dbName, collectionName: String
 
-  private lazy val parsedUri = MongoConnection.parseURI(mongoUri).get
+  implicit val ec: ExecutionContext
 
-  private val driver     = MongoDriver()
-  private val connection = driver.connection(parsedUri, strictUri = true)
+  private val parsedUri: Future[MongoConnection.ParsedURI] = MongoConnection.fromString(mongoUri)
 
-  private def database(implicit ec: ExecutionContext): Future[DefaultDB] = {
-    connection.fold(
-      e => throw e,
-      _.database(dbName)
-    )
-  }
+  private val driver: AsyncDriver = AsyncDriver()
+  private val connection = parsedUri.flatMap(driver.connect)
 
-  def collection(implicit ec: ExecutionContext): Future[JSONCollection] = database map(_.collection[JSONCollection](collectionName))
+  private def database: Future[DefaultDB] = connection.flatMap(_.database(dbName))
+
+  def collection: Future[JSONCollection] = database.map(_.collection[JSONCollection](collectionName))
 }
